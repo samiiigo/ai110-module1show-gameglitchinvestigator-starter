@@ -7,7 +7,7 @@ def get_range_for_difficulty(difficulty: str):
     if difficulty == "Normal":
         return 1, 100
     if difficulty == "Hard":
-        return 1, 200
+        return 1, 200  # FIX: Hard was returning 1-50, which is easier than Normal (1-100); corrected to 1-200
     return 1, 100
 
 
@@ -34,6 +34,7 @@ def check_guess(guess, secret):
         return "Win", "🎉 Correct!"
 
     try:
+        # FIX: Hint messages were swapped; "Go HIGHER!" now shown when guess is too low and vice versa
         if guess > secret:
             return "Too High", "📉 Go LOWER!"
         else:
@@ -54,6 +55,7 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
             points = 10
         return current_score + points
 
+    # FIX: Wrong guesses were adding points on even attempts; now always deducts 5 for incorrect guesses
     if outcome == "Too High":
         return current_score - 5
 
@@ -91,7 +93,7 @@ if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
 
 if "attempts" not in st.session_state:
-    st.session_state.attempts = 0
+    st.session_state.attempts = 0  # FIX: Was initialized to 1, causing the first game to start with one attempt already used
 
 if "score" not in st.session_state:
     st.session_state.score = 0
@@ -105,7 +107,7 @@ if "history" not in st.session_state:
 st.subheader("Make a guess")
 
 st.info(
-    f"Guess a number between {low} and {high}. "
+    f"Guess a number between {low} and {high}. "  # FIX: Was hardcoded to "1 and 100" regardless of difficulty
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
@@ -131,9 +133,9 @@ with col3:
 
 if new_game:
     st.session_state.attempts = 0
-    st.session_state.secret = random.randint(low, high)
-    st.session_state.status = "playing"
-    st.session_state.history = []
+    st.session_state.secret = random.randint(low, high)  # FIX: Was hardcoded to randint(1, 100), ignoring difficulty range
+    st.session_state.status = "playing"  # FIX: Status was never reset, so game over screen persisted after starting a new game
+    st.session_state.history = []  # FIX: History was never cleared on new game
     st.success("New game started.")
     st.rerun()
 
